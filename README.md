@@ -70,8 +70,10 @@ The following is the structure of the CSV file:
 
 * Google Form with your forked GitHub repository URL containing your code.
 * Python Code (Plain Script or Jupyter Notebook) on GitHub.
-* Create a report that includes the responses to the questions, the lessons learned, and any additional comments. In this report, you can include diagrams and images that support your solution. Upload your report into your forked GitHub repository.
-  If you want to deliver an online document, the **[Google Form](https://forms.gle/BVWLqYnoFj8CRF3v8)** has an optional field for your online document URL. (Remember to configure the suitable access policy for your document)
+* Create a report that includes the responses to the questions, the lessons learned, and any additional comments. In this report, you can include diagrams and images that support your solution. Upload your report into your forked GitHub repository.  
+    
+    If you want to deliver an online document, the **[Google Form](https://forms.gle/BVWLqYnoFj8CRF3v8)** has an optional field for your online document URL. (Remember to configure the suitable access policy for your document)
+    
 * Create a 5-minute video to explain your solution, thought process, and relevant information from your report. You can create a Slideshow for your report as an aid for your video. Upload your video as a private video on any Video platform of your preference (YouTube, Vimeo, etc.) and provide the link to your video on the **[Google Form](https://forms.gle/BVWLqYnoFj8CRF3v8)**
 
 ---
