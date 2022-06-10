@@ -3,7 +3,7 @@ module "eks" {
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
   subnets         = var.subnet
-  
+  version = "17.24.0"
 
   tags = {
     Environment = "data-bootcamp"
