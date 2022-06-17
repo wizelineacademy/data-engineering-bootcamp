@@ -5,6 +5,7 @@
 
 This repository contains some of the principal resourses that you probably want to use when starts working into the IaC module.
 
+* Contains of this repo
 #+begin_src :eval no :exports code
 .
 └── terraforms-templates
@@ -24,5 +25,44 @@ This repository contains some of the principal resourses that you probably want 
     │   │   └── vpc
     │   └── nfs
     └── kubernetes
-
 #+end_src
+
+* Terraform K8s Cluster
+
+** Terraform AWS-EKS
+The current architecture was implemented following this guide [[//learn.hashicorp.com/terraform/kubernetes/provision-eks-cluster)
+][Provisioning an EKS Cluster guide]]
+*** Prerequisites
++ AWS account configured. For this example we are using default profile and /us-east-2/ region.
+*** Dependencies
++ aws cli
++ Cluster version: 1.20
++ Terraform >= 0.13
+*** Installing
+
+Go to the directory =./aws/= and execute the Terraform commands:
+
+#+begin_src :eval no :exports code
+terraform init
+terraform apply --var-file=terraform.tfvars
+#+end_src
+
+Once that the cluster is created (it will took a few minutes), set the kubectl context:
+
+#+begin_src
+aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+#+end_src
+
+** Terraform GCP-GKE
+** Terraform destruction
+
+To destroy the EKS cluster with all the services, we run:
+
+#+begin_src
+terraform destroy --var-file=terraform.tfvars
+#+end_src
+
+*Important notes*
+Remember that you are working with services on the cloud and you are creating the infraestructure to work with between them. Often times, due different conditions, including internet desconections and server problems, some of your services will stay in your Cloud Provider, so, we encourage you to check twice everytime you run this feature and make sure that all the services were shut down properly.
+
+* Airflow
