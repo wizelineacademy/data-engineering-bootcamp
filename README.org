@@ -5,28 +5,24 @@
 
 This repository contains some of the principal resourses that you probably want to use when starts working into the IaC module.
 
-#+begin_src sh :exports results
-tree -d
-#+end_src
+#+begin_src :eval no :exports code
+.
+└── terraforms-templates
+    ├── aws
+    │   ├── assests
+    │   └── modules
+    │       ├── ec2
+    │       ├── eks
+    │       ├── networking
+    │       ├── rds
+    │       └── s3
+    ├── gcp
+    │   ├── modules
+    │   │   ├── cloudsql
+    │   │   ├── compute-engine
+    │   │   ├── gke
+    │   │   └── vpc
+    │   └── nfs
+    └── kubernetes
 
-#+RESULTS:
-| .   |                      |            |                |
-| └── | terraforms-templates |            |                |
-| ├── | aws                  |            |                |
-| │   | ├──                  | assests    |                |
-| │   | └──                  | modules    |                |
-| │   | ├──                  | ec2        |                |
-| │   | ├──                  | eks        |                |
-| │   | ├──                  | networking |                |
-| │   | ├──                  | rds        |                |
-| │   | └──                  | s3         |                |
-| ├── | gcp                  |            |                |
-| │   | ├──                  | modules    |                |
-| │   | │                    | ├──        | cloudsql       |
-| │   | │                    | ├──        | compute-engine |
-| │   | │                    | ├──        | gke            |
-| │   | │                    | └──        | vpc            |
-| │   | └──                  | nfs        |                |
-| └── | kubernetes           |            |                |
-|     |                      |            |                |
-| 17  | directories          |            |                |
+#+end_src
