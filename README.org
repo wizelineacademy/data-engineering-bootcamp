@@ -1,0 +1,32 @@
+#+title: Data Engineering Bootcamp Terraform Architecture
+#+author: Data Team
+#+email: data_engineering_bootcamp@wizeline.com
+#+property: TOC:nil
+
+This repository contains some of the principal resourses that you probably want to use when starts working into the IaC module.
+
+#+begin_src sh :exports results
+tree -d
+#+end_src
+
+#+RESULTS:
+| .   |                      |            |                |
+| └── | terraforms-templates |            |                |
+| ├── | aws                  |            |                |
+| │   | ├──                  | assests    |                |
+| │   | └──                  | modules    |                |
+| │   | ├──                  | ec2        |                |
+| │   | ├──                  | eks        |                |
+| │   | ├──                  | networking |                |
+| │   | ├──                  | rds        |                |
+| │   | └──                  | s3         |                |
+| ├── | gcp                  |            |                |
+| │   | ├──                  | modules    |                |
+| │   | │                    | ├──        | cloudsql       |
+| │   | │                    | ├──        | compute-engine |
+| │   | │                    | ├──        | gke            |
+| │   | │                    | └──        | vpc            |
+| │   | └──                  | nfs        |                |
+| └── | kubernetes           |            |                |
+|     |                      |            |                |
+| 17  | directories          |            |                |
