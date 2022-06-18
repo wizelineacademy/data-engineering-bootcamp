@@ -30,17 +30,17 @@ This repository contains some of the principal resourses that you probably want 
 * Terraform K8s Cluster
 
 ** Terraform AWS-EKS
-The current architecture was implemented following this guide [[//learn.hashicorp.com/terraform/kubernetes/provision-eks-cluster)
-][Provisioning an EKS Cluster guide]]
+The current architecture was implemented following this guide [[http://learn.hashicorp.com/terraform/kubernetes/provision-eks-cluster)][Provisioning an EKS Cluster guide]]
 *** Prerequisites
-+ AWS account configured. For this example we are using default profile and /us-east-2/ region.
++ AWS account configured. For this example we are using default profile and /us-east-2/ region
++ Kubect cli
 *** Dependencies
 + aws cli
 + Cluster version: 1.20
 + Terraform >= 0.13
 *** Installing
 
-Go to the directory =./aws/= and execute the Terraform commands:
+Go to the directory =aws/= and execute the Terraform commands:
 
 #+begin_src :eval no :exports code
 terraform init
@@ -53,7 +53,30 @@ Once that the cluster is created (it will took a few minutes), set the kubectl c
 aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
 #+end_src
 
-** Terraform GCP-GKE
+** Terraform GCP-GKEz
+The current architecture was implemented following this guide [[https://learn.hashicorp.com/tutorials/terraform/gke?in=terraform/kubernetes)
+][Provision a GKE Cluster guide]]
+*** Prerequisites
++ GCP account configured
++ Kubectl cli
+*** Dependencies
++ gcloud cli
++ Cluster Version: 1.20
++ Terraform >= 0.13
+*** Installing
+Go to the directory =gcp/= and execute the following Terraform commands:
+
+#+begin_src :eval no :exports code
+terraform init
+terraform apply --var-file=terraform.tfvars
+#+end_src
+
+Once that the cluster is created (it will took a few minutes), set the kubectl context:
+
+#+begin_src :eval no :exports code
+gcloud container clusters get-credentials $(terraform output -raw kubernetes_cluster_name) --region $(terraform output -raw location)
+#+end_src
+
 ** Terraform destruction
 
 To destroy the EKS cluster with all the services, we run:
@@ -66,3 +89,136 @@ terraform destroy --var-file=terraform.tfvars
 Remember that you are working with services on the cloud and you are creating the infraestructure to work with between them. Often times, due different conditions, including internet desconections and server problems, some of your services will stay in your Cloud Provider, so, we encourage you to check twice everytime you run this feature and make sure that all the services were shut down properly.
 
 * Airflow
+
+** Prerequisites
++ Helm 3
+** Dependencies
++ kubernetes cluster version: 1.20
+** NFS preparation
+To work with Airflow we will use a NFS servicem we will create it in the Kubernetes cluster.
+
+First create a namespace for the nsf server executing in your respective cloud provider path:
+
+#+begin_src :eval no :exports code
+kubectl create namespace nfs
+#+end_src
+
+then is time to create the nfs server using your /yaml file/:
+
+#+begin_src :eval no :exports code
+kubectl -n nfs apply -f nfs/nfs-server.yaml
+#+end_src
+
+now export the nfs server:
+
+#+begin_src :eval no :exports code
+export NFS_SERVER=$(kubectl -n nfs get service/nfs-server -o jsonpath="{.spec.clusterIP}")
+#+end_src
+
+finally, in order to install Airflow, go to the directory =kubernetes/=:
+
+** Storage
+
+Create a namespace for storage deployment:
+
+#+begin_src :eval no :exports code
+kubectl create namespace storage
+#+end_src
+
+Add the chart for the nfs-provisioner
+
+#+begin_src :eval no :exports code
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+#+end_src
+
+Install nfs-external-provisioner
+
+#+begin_src :eval no :exports code
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+    --namespace storage \
+    --set nfs.server=$NFS_SERVER \
+    --set nfs.path=/
+#+end_src
+
+** Airflow Installation
+
+Here we are using official Airflow helm chart as example, but, can also been installed any other Airflow distribution.
+
+Create the namespace
+#+begin_src :eval no :exports code
+kubectl create namespace airflow
+#+end_src
+
+Add the chart repository and confirm:
+#+begin_src :eval no :exports code
+helm repo add apache-airflow https://airflow.apache.org
+#+end_src
+
+Update the file =airflow-values.yaml= attributes; repo, branch and subPath of your DAGs.
+
+#+begin_src :eval no :exports code
+yaml
+gitSync:
+enabled: true
+
+# git repo clone url
+# ssh examples ssh://git@github.com/apache/airflow.git
+# git@github.com:apache/airflow.git
+# https example: https://github.com/mmendoza17/data-bootcamp-terraforms-mmendoza
+
+repo: https://github.com/eiffela65/Airflow-Templates
+branch: main
+rev: HEAD
+depth: 1
+
+# the number of consecutive failures allowed before aborting
+maxFailures: 0
+
+# subpath within the repo where dags are located
+# should be "" if dags are at repo root
+subPath: ""
+#+end_src
+
+Install the airflow chart from the repository:
+
+#+begin_src  :eval no :exports code
+helm install airflow -f airflow-values.yaml apache-airflow/airflow --namespace airflow
+#+end_src
+
+We can verify that our pods are up and running by executing:
+
+#+begin_src :eval no :exports code
+kubectl get pods -n airflow
+#+end_src
+
+** Accessing to Airflow dashboard
+
+The Helm chart shows how to connect:
+
+#+begin_src :eval no :exports code
+You can now access your dashboard(s) by executing the following command(s) and visiting the corresponding port at localhost in your browser:
+
+Airflow Webserver:     kubectl port-forward svc/airflow-webserver 8080:8080 --namespace airflow
+Flower dashboard:      kubectl port-forward svc/airflow-flower 5555:5555 --namespace airflow
+Default Webserver (Airflow UI) Login credentials:
+    username: admin
+    password: admin
+Default Postgres connection credentials:
+    username: postgres
+    password: postgres
+    port: 5432
+
+You can get Fernet Key value by running the following:
+
+    echo Fernet Key: $(kubectl get secret --namespace airflow airflow-fernet-key -o jsonpath="{.data.fernet-key}" | base64 --decode)
+#+end_src
+
+As you can see, we need to access to the dashboard running:
+
+#+begin_src :eval no :exports code
+kubectl port-forward svc/airflow-webserver 8080:8080 --namespace airflow
+kubectl port-forward svc/airflow-flower 5555:5555 --namespace airflow
+#+end_src
+
+* Acknowledgments
+This solution was based on this guide: [[https://learn.hashicorp.com/tutorials/terraform/gke?in=terraform/kubernetes][Provision a GKE Cluster guide]], containing Terraform configuration files to provision an GKE cluster on GCP.
